@@ -50,6 +50,23 @@ def register():
 
     return render_template('auth/register.html')
 
+
+
+@bp.route("/welcome", methods=["GET","POST"])
+def welcome():
+    if request.method == "POST":
+        # Search the books
+        db = get_db()
+        text = request.form.get("text")
+        results = db.execute(
+            "SELECT * FROM Book WHERE BookID LIKE :text LIMIT 10", {"text": f"%{text}%"}).fetchall()
+        return render_template("auth/welcome.html", results=results, input_value=text, alert_message="No matches found")
+    else:
+        return render_template("auth/welcome.html")
+
+
+
+
 def bookssql():
     db = get_db()
     f = open("books.csv")
