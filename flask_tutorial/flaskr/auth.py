@@ -22,8 +22,9 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 #If the user submitted the form, request.method will be 'POST'. In this case, start validating the input.
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
-    bookssql()
+    
     if request.method == 'POST':
+        print('in register up!', flush=True)
         username = request.form['username']
         password = request.form['password']
         db = get_db()
@@ -39,11 +40,14 @@ def register():
             error = 'User {} is already registered.'.format(username)
 
         if error is None:
+            print('in register', flush=True)
             db.execute(
                 'INSERT INTO user (username, password) VALUES (?, ?)',
                 (username, generate_password_hash(password))
             )
             db.commit()
+            bookssql()
+            authorsql()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -60,7 +64,24 @@ def bookssql():
             (BookID, Title, Author, AverageRating,Description, PageNum,PublicationYear )
             )
         #print(f"Added book {title}, {author}, {year} with gid = {gid}")
+    print('inserted all books', flush=True)
     db.commit()
+    print('error here', flush=True)
+
+def authorsql():
+
+    db = get_db()
+    f = open("authors.csv")
+    reader = csv.reader(f)
+
+    for Name, workCount in reader:
+        db.execute('INSERT INTO Author (Name, workCount) VALUES (?,?)',
+            (Name, workCount )
+            )
+        #print(f"Added book {title}, {author}, {year} with gid = {gid}")
+    print('inserted authors', flush=True)
+    db.commit()
+
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -83,11 +104,26 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            return redirect(url_for('index'))
+            return redirect(url_for('auth.welcome'))
 
         flash(error)
 
     return render_template('auth/login.html')
+
+
+@bp.route("/welcome", methods=["GET", "POST"])
+def welcome():
+   # if session.get("user_name") is None:
+    #    return redirect("index")
+    if request.method == "POST":
+        # Search the books
+        text = request.form.get("text")
+        results = db.execute(
+            "SELECT * FROM Book WHERE Title LIKE :text OR Author LIKE :text", {"text": "%{text}%"}).fetchall()
+        return render_template("auth/welcome.html", results=results, input_value=text, alert_message="No matches found")
+    else:
+        return render_template("auth/welcome.html")
+
 
 
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.

@@ -27,8 +27,7 @@ CREATE TABLE Book (
 );
 
 CREATE TABLE Author (
-    AuthorID INTEGER PRIMARY KEY,
-    Name VARCHAR(100),
+    Name TEXT PRIMARY KEY,
     workCount INTEGER
 );
 
