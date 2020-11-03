@@ -1,16 +1,13 @@
-{% extends 'base.html' %}
+{% extends "base.html" %} 
 
-{% block meta %}
-<title>Books | Welcome</title>
-{% endblock %} 
+{% block header %}
+  <h1>{% block title %}Welcome{% endblock %}</h1>
+{% endblock %}
 
-{% block body %}
-  <div class="container mt-5">
-    <h1 class="text-center">Welcome!</h1>
-    <h3 class="text-center h2 text-muted">We have more than 5000 books to search</h3>
-    <form class="form-inline mx-auto mt-4 mx-w-900" action="{{ url_for('welcome') }}" method="POST">
+{% block content %}
+<form method="post">
       <input class="form-control form-control-lg" type="text" name="text"
-        placeholder="Enter book's name, author or ISBN number" value="{{ input_value }}">
+        placeholder="Enter book's id number" value="{{ input_value }}">
       <button class="btn btn-outline-primary btn-lg">Search</button>
     </form>
     
@@ -20,9 +17,8 @@
 
         {% for result in results %}
         <li class="list-group-item">
-          <a href="{{ url_for('book', isbn=result.isbn) }}">
-            {{ result.title }}, {{ result.author }}, {{ result.year }}, {{ result.isbn }}
-          </a>
+   
+            {{ result.Title }}, {{ result.Author }}, {{ result.BookID }}, {{ result.AverageRating }}, {{ result.descp }}, {{ result.PageNum }}, {{ result.PublicationYear }}
         </li>
         {% endfor %}
 

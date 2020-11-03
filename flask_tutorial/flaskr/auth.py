@@ -111,20 +111,30 @@ def login():
     return render_template('auth/login.html')
 
 
-@bp.route("/welcome", methods=["GET", "POST"])
+# @bp.route("/welcome", methods=["GET", "POST"])
+# def welcome():
+#    # if session.get("user_name") is None:
+#     #    return redirect("index")
+#     if request.method == "POST":
+#         # Search the books
+#         text = request.form.get("text")
+#         results = db.execute(
+#             "SELECT * FROM Book WHERE Title LIKE :text OR Author LIKE :text", {"text": "%{text}%"}).fetchall()
+#         return render_template("auth/welcome.html", results=results, input_value=text, alert_message="No matches found")
+#     else:
+#         return render_template("auth/welcome.html")
+
+@bp.route("/welcome", methods=["GET","POST"])
 def welcome():
-   # if session.get("user_name") is None:
-    #    return redirect("index")
     if request.method == "POST":
         # Search the books
+        db = get_db()
         text = request.form.get("text")
         results = db.execute(
-            "SELECT * FROM Book WHERE Title LIKE :text OR Author LIKE :text", {"text": "%{text}%"}).fetchall()
+            "SELECT * FROM Book WHERE Title LIKE :text LIMIT 100", {"text": f"%{text}%"}).fetchall()
         return render_template("auth/welcome.html", results=results, input_value=text, alert_message="No matches found")
     else:
         return render_template("auth/welcome.html")
-
-
 
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.
 #load_logged_in_user checks if a user id is stored in the session and gets that user’s data from the database, storing it on g.user, 
