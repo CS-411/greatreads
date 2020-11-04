@@ -188,7 +188,7 @@ def update():
             'SELECT * FROM Book WHERE BookID = ?', (bookID,)
         ).fetchone()
         
-        if user is None:
+        if bookid is None:
             error = 'Book does not exist'
 
         if not title
