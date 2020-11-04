@@ -158,17 +158,31 @@ def delete():
     if request.method == "POST":
         # delete the specified
         db = get_db()
-        text = request.form.get("text")
-        db.execute("DELETE FROM Book WHERE Title LIKE :text", {"text": f"%{text}%"})
-        db.commit()
-        results = db.execute(
-            "SELECT changes()")
-        print('results: ', flush=True)
-        print(results, flush=True)
-        return render_template("auth/delete.html", results=results, input_value=text, alert_message="Book not found, DELETE unsuccessful!")
+
+        bookID = request.form.get("text")
+
+        error = None
+
+        bookid = db.execute(
+            'SELECT * FROM Book WHERE BookID = ?', (bookID,)
+        ).fetchone()
+
+        if bookid is None:
+            error = 'Book does not exist'
+
+        if error is None:
+        
+            db.execute("DELETE FROM Book WHERE BookID = ?", (bookID,))
+            db.commit()
+            results = db.execute(
+                "SELECT changes()")
+            print('results: ', flush=True)
+            print(results, flush=True)
+            return render_template("auth/delete.html", results=results, input_value=bookID, alert_message="DELETE unsuccessful!")
+
+        flash(error)
     
-    else:
-        return render_template("auth/delete.html")
+    return render_template("auth/delete.html")
 
 @bp.route("/update", methods=["GET","POST"])
 def update():
@@ -184,46 +198,55 @@ def update():
         pageNum = request.form.get('pageNum')
         pubYr = request.form.get('PubYr')
 
+        error = None
+
         bookid = db.execute(
             'SELECT * FROM Book WHERE BookID = ?', (bookID,)
         ).fetchone()
         
-        if user is None:
+        if bookid is None:
             error = 'Book does not exist'
 
-        if not title
-            db.execute("UPDATE Book SET Title = ? WHERE BookID = ?", (title,bookID,))
-            db.commit()
-        
-        if author != ""
-            db.execute("UPDATE Book SET Author = ? WHERE BookID = ?", (author,bookID,))
-            db.commit()
-        
-        if avgRating != ""
-            db.execute("UPDATE Book SET AverageRating = ? WHERE BookID = ?", (avgRating,bookID,))
-            db.commit()
-        
-        if descp != ""
-            db.execute("UPDATE Book SET descp = ? WHERE BookID = ?", (descp,bookID,))
-            db.commit()
+        if error is None: 
 
-        if pageNum != ""
-            db.execute("UPDATE Book SET PageNum = ? WHERE BookID = ?", (pageNum,bookID,))
-            db.commit()
+            # all of these are commented out because each if statement gives a syntax error
+            # Purpose of these if statements is to only run Update command on fields that
+            # a value was inserted for so we don't update with empty value
 
-        if pubYr != ""
-            db.execute("UPDATE Book SET PublicationYear = ? WHERE BookID = ?", (pubYr,bookID,))
-            db.commit()
-
-        results = db.execute(
-            "SELECT changes()")
-        print('results: ', flush=True)
-        print(results, flush=True)
+            # if title != ""
+                #db.execute("UPDATE Book SET Title = ? WHERE BookID = ?", (title,bookID,))
+                #db.commit()
         
-        return render_template("auth/update.html", results=results, alert_message="Book not found, UPDATE unsuccessful!")
+            #if author != ""
+                #db.execute("UPDATE Book SET Author = ? WHERE BookID = ?", (author,bookID,))
+                #db.commit()
+        
+            #if avgRating != ""
+                #db.execute("UPDATE Book SET AverageRating = ? WHERE BookID = ?", (avgRating,bookID,))
+                #db.commit()
+        
+            #if descp != ""
+                #db.execute("UPDATE Book SET descp = ? WHERE BookID = ?", (descp,bookID,))
+                #db.commit()
+
+            #if pageNum != ""
+                #db.execute("UPDATE Book SET PageNum = ? WHERE BookID = ?", (pageNum,bookID,))
+                #db.commit()
+
+            #if pubYr != ""
+                #db.execute("UPDATE Book SET PublicationYear = ? WHERE BookID = ?", (pubYr,bookID,))
+                #db.commit()
+
+            results = db.execute(
+                "SELECT changes()")
+            print('results: ', flush=True)
+            print(results, flush=True)
+            
+            return render_template("auth/update.html", results=results, alert_message="UPDATE unsuccessful!")
+        
+        flash(error)
     
-    else:
-        return render_template("auth/update.html")
+    return render_template("auth/update.html")
 
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.
 #load_logged_in_user checks if a user id is stored in the session and gets that user’s data from the database, storing it on g.user, 
