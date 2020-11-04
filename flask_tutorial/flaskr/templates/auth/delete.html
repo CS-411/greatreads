@@ -1,0 +1,26 @@
+{% extends "base.html" %} 
+
+{% block header %}
+  <h1>{% block title %}Delete{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <input class="form-control form-control-lg" type="text" name="text"
+            placeholder="Enter book's title" value="{{ input_value }}">
+        <button class="btn btn-outline-primary btn-lg">DELETE</button>
+    </form>
+
+    {% if results %}
+      <h2 class="text-center my-3">Result:</h2>
+      <ul class="list-group mx-w-900 mx-auto">
+
+          <h4>Delete was successful!</h4>
+
+      </ul>
+
+    {% elif alert_message %}
+        <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
+    {% endif %}
+
+{% endblock %}

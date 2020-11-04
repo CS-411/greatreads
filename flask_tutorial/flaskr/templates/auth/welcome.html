@@ -5,27 +5,33 @@
 {% endblock %}
 
 {% block content %}
-<form method="post">
+  <form method="post">
       <input class="form-control form-control-lg" type="text" name="text"
-        placeholder="Enter book's id number" value="{{ input_value }}">
+        placeholder="Enter book's title" value="{{ input_value }}">
       <button class="btn btn-outline-primary btn-lg">Search</button>
-    </form>
-    
-    {% if results %}
-    <h2 class="text-center my-3">Results:</h2>
-    <ul class="list-group mx-w-900 mx-auto">
+      <button type="submit" name="delete" value="delete">Delete</button>
+      <button type="submit" name="update" value="update">Update</button>
+  </form>
+      
+  {% if results %}
+      <h2 class="text-center my-3">Results:</h2>
+      <ul class="list-group mx-w-900 mx-auto">
 
-        {% for result in results %}
-        <li class="list-group-item">
-   
-            {{ result.Title }}, {{ result.Author }}, {{ result.BookID }}, {{ result.AverageRating }}, {{ result.descp }}, {{ result.PageNum }}, {{ result.PublicationYear }}
-        </li>
-        {% endfor %}
+          {% for result in results %}
+          <li class="list-group-item">
 
-    </ul>
-    {% elif alert_message %}
+              {{ result.Title }}, {{ result.Author }}, {{ result.BookID }}, {{ result.AverageRating }}, {{ result.descp }}, {{ result.PageNum }}, {{ result.PublicationYear }}
+          </li>
+          {% endfor %}
+
+      </ul>
+
+      <!-- <button type="submit" name="delete" value="delete">Delete</button>
+      <button type="submit" name="update" value="update">Update</button> -->
+
+  {% elif alert_message %}
       <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
-    {% endif %}
+  {% endif %}
 
   </div>
 {% endblock %}

@@ -12,6 +12,9 @@ from flaskr.db import get_db
 #The url_prefix will be prepended to all the URLs associated with the blueprint
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
+#global variable to track if delete button has been pressed
+#delete = 0
+
 #When the user visits the /auth/register URL, the register view will return HTML with a form for them to fill out.
 # When they submit the form, it will validate their input and either show the form again with an error message or create 
 #the new user and go to the login page.
@@ -56,7 +59,7 @@ def register():
 
 def bookssql():
     db = get_db()
-    f = open("books.csv")
+    f = open("books.csv", encoding="utf8")
     reader = csv.reader(f)
 
     for BookID, Title, Author, AverageRating,Description, PageNum, PublicationYear in reader:
@@ -71,7 +74,7 @@ def bookssql():
 def authorsql():
 
     db = get_db()
-    f = open("authors.csv")
+    f = open("authors.csv", encoding="utf8")
     reader = csv.reader(f)
 
     for Name, workCount in reader:
@@ -82,6 +85,9 @@ def authorsql():
     print('inserted authors', flush=True)
     db.commit()
 
+#called upon DELETE button being pressed
+# def deletePressed():
+#     delete = 1
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -127,14 +133,97 @@ def login():
 @bp.route("/welcome", methods=["GET","POST"])
 def welcome():
     if request.method == "POST":
+        print('search pressed', flush=True)
+
+        if request.form.get("delete"):
+            print('delete pressed', flush=True)
+            return redirect(url_for('auth.delete'))
+        elif request.form.get("update"):
+            print('update pressed', flush=True)
+            return redirect(url_for('auth.update'))
+
         # Search the books
         db = get_db()
         text = request.form.get("text")
         results = db.execute(
             "SELECT * FROM Book WHERE Title LIKE :text LIMIT 100", {"text": f"%{text}%"}).fetchall()
         return render_template("auth/welcome.html", results=results, input_value=text, alert_message="No matches found")
+
     else:
         return render_template("auth/welcome.html")
+
+
+@bp.route("/delete", methods=["GET","POST"])
+def delete():
+    if request.method == "POST":
+        # delete the specified
+        db = get_db()
+        text = request.form.get("text")
+        db.execute("DELETE FROM Book WHERE Title LIKE :text", {"text": f"%{text}%"})
+        db.commit()
+        results = db.execute(
+            "SELECT changes()")
+        print('results: ', flush=True)
+        print(results, flush=True)
+        return render_template("auth/delete.html", results=results, input_value=text, alert_message="Book not found, DELETE unsuccessful!")
+    
+    else:
+        return render_template("auth/delete.html")
+
+@bp.route("/update", methods=["GET","POST"])
+def update():
+    if request.method == "POST":
+        # delete the specified
+        db = get_db()
+
+        bookID = request.form.get('BookID')
+        title = request.form.get('title')
+        author = request.form.get('author')
+        avgRating = request.form.get('avgrating')
+        descp = request.form.get('descp')
+        pageNum = request.form.get('pageNum')
+        pubYr = request.form.get('PubYr')
+
+        bookid = db.execute(
+            'SELECT * FROM Book WHERE BookID = ?', (bookID,)
+        ).fetchone()
+        
+        if user is None:
+            error = 'Book does not exist'
+
+        if not title
+            db.execute("UPDATE Book SET Title = ? WHERE BookID = ?", (title,bookID,))
+            db.commit()
+        
+        if author != ""
+            db.execute("UPDATE Book SET Author = ? WHERE BookID = ?", (author,bookID,))
+            db.commit()
+        
+        if avgRating != ""
+            db.execute("UPDATE Book SET AverageRating = ? WHERE BookID = ?", (avgRating,bookID,))
+            db.commit()
+        
+        if descp != ""
+            db.execute("UPDATE Book SET descp = ? WHERE BookID = ?", (descp,bookID,))
+            db.commit()
+
+        if pageNum != ""
+            db.execute("UPDATE Book SET PageNum = ? WHERE BookID = ?", (pageNum,bookID,))
+            db.commit()
+
+        if pubYr != ""
+            db.execute("UPDATE Book SET PublicationYear = ? WHERE BookID = ?", (pubYr,bookID,))
+            db.commit()
+
+        results = db.execute(
+            "SELECT changes()")
+        print('results: ', flush=True)
+        print(results, flush=True)
+        
+        return render_template("auth/update.html", results=results, alert_message="Book not found, UPDATE unsuccessful!")
+    
+    else:
+        return render_template("auth/update.html")
 
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.
 #load_logged_in_user checks if a user id is stored in the session and gets that user’s data from the database, storing it on g.user, 
