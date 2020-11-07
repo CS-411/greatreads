@@ -18,8 +18,8 @@ CREATE TABLE post (
 
 CREATE TABLE Book (
     BookID INTEGER PRIMARY KEY,
-    Title TEXT,
-    Author TEXT,
+    Title TEXT NOT NULL,
+    Author TEXT NOT NULL,
     AverageRating REAL,
     descp TEXT,
     PageNum INTEGER,

@@ -141,6 +141,9 @@ def welcome():
         elif request.form.get("update"):
             print('update pressed', flush=True)
             return redirect(url_for('auth.update'))
+        elif request.form.get("insert"):
+            print('insert pressed', flush=True)
+            return redirect(url_for('auth.insert'))
 
         # Search the books
         db = get_db()
@@ -156,7 +159,7 @@ def welcome():
 @bp.route("/delete", methods=["GET","POST"])
 def delete():
     if request.method == "POST":
-        # delete the specified
+        # delete the specified book
         db = get_db()
 
         bookID = request.form.get("text")
@@ -187,7 +190,7 @@ def delete():
 @bp.route("/update", methods=["GET","POST"])
 def update():
     if request.method == "POST":
-        # delete the specified
+        # update the specified book
         db = get_db()
 
         bookID = request.form.get('BookID')
@@ -213,29 +216,29 @@ def update():
             # Purpose of these if statements is to only run Update command on fields that
             # a value was inserted for so we don't update with empty value
 
-            # if title != ""
-                #db.execute("UPDATE Book SET Title = ? WHERE BookID = ?", (title,bookID,))
-                #db.commit()
+            if title != "":
+                db.execute("UPDATE Book SET Title = ? WHERE BookID = ?", (title,bookID,))
+                db.commit()
         
-            #if author != ""
-                #db.execute("UPDATE Book SET Author = ? WHERE BookID = ?", (author,bookID,))
-                #db.commit()
+            if author != "":
+                db.execute("UPDATE Book SET Author = ? WHERE BookID = ?", (author,bookID,))
+                db.commit()
         
-            #if avgRating != ""
-                #db.execute("UPDATE Book SET AverageRating = ? WHERE BookID = ?", (avgRating,bookID,))
-                #db.commit()
+            if avgRating != "":
+                db.execute("UPDATE Book SET AverageRating = ? WHERE BookID = ?", (avgRating,bookID,))
+                db.commit()
         
-            #if descp != ""
-                #db.execute("UPDATE Book SET descp = ? WHERE BookID = ?", (descp,bookID,))
-                #db.commit()
+            if descp != "":
+                db.execute("UPDATE Book SET descp = ? WHERE BookID = ?", (descp,bookID,))
+                db.commit()
 
-            #if pageNum != ""
-                #db.execute("UPDATE Book SET PageNum = ? WHERE BookID = ?", (pageNum,bookID,))
-                #db.commit()
+            if pageNum != "":
+                db.execute("UPDATE Book SET PageNum = ? WHERE BookID = ?", (pageNum,bookID,))
+                db.commit()
 
-            #if pubYr != ""
-                #db.execute("UPDATE Book SET PublicationYear = ? WHERE BookID = ?", (pubYr,bookID,))
-                #db.commit()
+            if pubYr != "":
+                db.execute("UPDATE Book SET PublicationYear = ? WHERE BookID = ?", (pubYr,bookID,))
+                db.commit()
 
             results = db.execute(
                 "SELECT changes()")
@@ -247,6 +250,54 @@ def update():
         flash(error)
     
     return render_template("auth/update.html")
+
+@bp.route("/insert", methods=["GET","POST"])
+def insert():
+    if request.method == "POST":
+        # insert the new book
+        db = get_db()
+
+        bookID = request.form.get('BookID')
+        title = request.form.get('title')
+        author = request.form.get('author')
+        avgRating = request.form.get('avgrating')
+        descp = request.form.get('descp')
+        pageNum = request.form.get('pageNum')
+        pubYr = request.form.get('PubYr')
+
+        error = None
+
+        bookid = db.execute(
+            'SELECT * FROM Book WHERE BookID = ?', (bookID,)
+        ).fetchone()
+
+        maxBookId = db.execute(
+            'SELECT MAX(BookID) FROM Book'
+        ).fetchone()
+
+        print('maxBookid: ', flush=True)
+        print(maxBookId, flush=True)
+        
+        if bookid is not None:
+            error = ''
+            error = 'Book already exists. BookID must be > {}' .format(maxBookId[0])
+
+        if error is None: 
+
+            db.execute(
+                "INSERT INTO Book (BookID, Title, Author, AverageRating, descp, PageNum, PublicationYear) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (bookID,title,author,avgRating,descp,pageNum,pubYr,))
+            db.commit()
+
+            results = db.execute(
+                "SELECT changes()")
+            
+            return render_template("auth/insert.html", results=results, alert_message="INSERT unsuccessful!")
+        
+        flash(error)
+    
+    return render_template("auth/insert.html")
+
 
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.
 #load_logged_in_user checks if a user id is stored in the session and gets that user’s data from the database, storing it on g.user, 

@@ -1,0 +1,47 @@
+{% extends "base.html" %} 
+
+{% block header %}
+  <h1>{% block title %}Insert{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+    <form method="post">
+        <label for="BookID">BookID</label>
+        <input name="BookID" id="BookID" required>
+        <br />
+        <label for="title">Title</label>
+        <input type="title" name="title" id="title" required>
+        <br />
+        <label for="author">Author</label>
+        <input name="author" id="author" required>
+        <br />
+        <label for="avgrating">Average Rating</label>
+        <input name="avgrating" id="avgrating">
+        <br />
+        <label for="descp">Description</label>
+        <input name="descp" id="descp">
+        <br />
+        <label for="pageNum">Page Numbers</label>
+        <input name="pageNum" id="pageNum">
+        <br />
+        <label for="PubYr">Publication Year</label>
+        <input name="PubYr" id="PubYr">
+        <br />
+
+        <button class="btn btn-outline-primary btn-lg">INSERT</button>
+    </form>
+
+    {% if results %}
+      <h2 class="text-center my-3">Result:</h2>
+      <ul class="list-group mx-w-900 mx-auto">
+
+          <h4>Insert was successful!</h4>
+
+      </ul>
+
+    {% elif alert_message %}
+        <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
+    {% endif %}
+
+{% endblock %}
