@@ -18,8 +18,8 @@ CREATE TABLE post (
 
 CREATE TABLE Book (
     BookID INTEGER PRIMARY KEY,
-    Title TEXT,
-    Author TEXT,
+    Title TEXT NOT NULL,
+    Author TEXT NOT NULL,
     AverageRating REAL,
     descp TEXT,
     PageNum INTEGER,
@@ -27,8 +27,7 @@ CREATE TABLE Book (
 );
 
 CREATE TABLE Author (
-    AuthorID INTEGER PRIMARY KEY,
-    Name VARCHAR(100),
+    Name TEXT PRIMARY KEY,
     workCount INTEGER
 );
 
