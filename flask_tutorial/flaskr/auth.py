@@ -7,11 +7,15 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from flaskr.db import get_db
+import pymongo
+#from flask_pymongo import PyMongo
 #A view function is the code you write to respond to requests to your application
 #A Blueprint is a way to organize a group of related views and other code
 #The url_prefix will be prepended to all the URLs associated with the blueprint
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-
+myclient = pymongo.MongoClient("mongodb://localhost:27017/", connect=False)
+mydb = myclient["mydatabase"]
+mycol = mydb["reviews"]
 #global variable to track if delete button has been pressed
 #delete = 0
 
@@ -51,6 +55,7 @@ def register():
             db.commit()
             bookssql()
             authorsql()
+            mongo()
             return redirect(url_for('auth.login'))
 
         flash(error)
@@ -144,16 +149,94 @@ def welcome():
         elif request.form.get("insert"):
             print('insert pressed', flush=True)
             return redirect(url_for('auth.insert'))
+        elif request.form.get("review"):
+            print('review pressed', flush=True)
+            return redirect(url_for('auth.review'))
 
         # Search the books
         db = get_db()
         text = request.form.get("text")
+        print('text', text)
         results = db.execute(
             "SELECT * FROM Book WHERE Title LIKE :text LIMIT 100", {"text": f"%{text}%"}).fetchall()
         return render_template("auth/welcome.html", results=results, input_value=text, alert_message="No matches found")
 
     else:
         return render_template("auth/welcome.html")
+
+
+
+
+def mongo():
+   # myclient = pymongo.MongoClient("mongodb://localhost:27017/", connect=False)
+    #mydb = myclient["mydatabase"]
+    #mycol = mydb["reviews"]
+    #if request.method == 'GET':
+
+    #if request.method == 'POST':
+    print('in mongo up!', flush=True)
+    csvfile = open(os.path.join(os.path.dirname(__file__), 'review.csv'), 'r',  encoding='utf-8')
+    reader = csv.reader( csvfile )
+    header= [ "BookId", "Review1", "Review2", "Review3", "Review4", "Review5"]
+    #mycol.remove( { } )
+    
+    i = 0
+    n = 0
+    doc = {}
+    for row in reader:
+        #for field in header:
+        if i == 0:
+            doc = {}
+            doc[header[n]] = row[0]
+            n= n+1
+        if i < 5 :
+            doc[header[n]] = row[1]      
+        if i == 4:
+            x = mycol.insert_one(doc)
+            print('okay inserted into doc')
+            i = 0
+            n = 0
+        else:
+            i = i+1
+            n = n +1
+
+    csvfile.close()
+        #print(x, flush= True)
+    
+    #results = {BookId : "Nope", Review: "Bad"}
+    #for one_result in results:
+    #    print('one result', one_result)
+    #print('results', results)
+    #print('names', myclient.list_database_names(), flush=True)
+    #print(mydb.list_collection_names(), flush = True)
+
+@bp.route('/review', methods=["GET", "POST"])
+def review():
+    
+    if request.method == "POST":
+        # delete the specified book
+        db = get_db()
+
+        bookID = request.form.get("text")
+
+        error = None
+
+        bookid = db.execute(
+            'SELECT * FROM Book WHERE BookID = ?', (bookID,)
+        ).fetchone()
+
+        if bookid is None:
+            error = 'Book does not exist'
+
+        if error is None:
+            text = request.form.get("text")
+            #results = {BookId : "Nope", Review: "Bad"}
+            results = mydb.mycol.find({"BookId": text})
+            return render_template("auth/review.html", results=results, input_value=text, alert_message="No matches found")
+
+        flash(error)
+    
+    return render_template("auth/review.html")
 
 
 @bp.route("/delete", methods=["GET","POST"])

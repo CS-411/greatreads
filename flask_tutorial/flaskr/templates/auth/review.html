@@ -5,24 +5,25 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-      <input class="form-control form-control-lg" type="text" name="text"
-        placeholder="Enter book's title" value="{{ input_value }}">
-      <button class="btn btn-outline-primary btn-lg">Search</button>
-      <button type="submit" name="delete" value="delete">Delete</button>
-      <button type="submit" name="update" value="update">Update</button>
-      <button type="submit" name="insert" value="insert">Insert</button>
-      <button type="submit" name="review" value="review">Review</button>
-  </form>
+<form method="post">
+  <input class="form-control form-control-lg" type="text" name="text"
+      placeholder="Enter book's id" value="{{ input_value }}">
+  <button class="btn btn-outline-primary btn-lg">REVIEW</button>
+</form>
+
       
   {% if results %}
       <h2 class="text-center my-3">Results:</h2>
       <ul class="list-group mx-w-900 mx-auto">
-
           {% for result in results %}
           <li class="list-group-item">
 
-              {{ result.Title }}, {{ result.Author }}, {{ result.BookID }}, {{ result.AverageRating }}, {{ result.descp }}, {{ result.PageNum }}, {{ result.PublicationYear }}
+              {{ result['BookId'] }}, 
+              {{ result['Review1'] }},
+              {{ result['Review2'] }},
+              {{ result['Review3'] }},
+              {{ result['Review4'] }},
+              {{ result['Review5'] }}
           </li>
           {% endfor %}
 
