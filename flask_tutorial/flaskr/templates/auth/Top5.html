@@ -1,0 +1,17 @@
+{% extends "base.html" %} 
+
+
+{% block content %}
+<h2 class="text-center my-3">Top 5 Results:</h2>
+      <ul class="list-group mx-w-900 mx-auto">
+
+          {% for result in results %}
+          <li class="list-group-item">
+              {{ result.Title }}, {{ result.AverageRating }}
+          </li>
+          {% endfor %}
+
+      </ul>
+
+    </div>
+{% endblock %}

@@ -299,6 +299,20 @@ def insert():
     return render_template("auth/insert.html")
 
 
+#recommender for AF1
+@bp.route("/Top5", methods=["GET","POST"])
+def top5():
+
+    db = get_db()
+
+    top5results = db.execute(
+        "SELECT * FROM Book ORDER BY AverageRating DESC LIMIT 5").fetchall()
+
+    return render_template("auth/Top5.html", results=top5results, alert_message="No matches found")
+
+
+
+
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.
 #load_logged_in_user checks if a user id is stored in the session and gets that user’s data from the database, storing it on g.user, 
 @bp.before_app_request
