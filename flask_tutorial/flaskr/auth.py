@@ -8,6 +8,9 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flaskr.db import get_db
 import pymongo
+
+import numpy as np
+
 #from flask_pymongo import PyMongo
 #A view function is the code you write to respond to requests to your application
 #A Blueprint is a way to organize a group of related views and other code
@@ -152,6 +155,15 @@ def welcome():
         elif request.form.get("review"):
             print('review pressed', flush=True)
             return redirect(url_for('auth.review'))
+        elif request.form.get("searchAuthors"):
+            print('searchAuthors pressed', flush=True)
+            return redirect(url_for('auth.searchAuthors'))
+        elif request.form.get("searchWorkCount"):
+            print('searchWorkCount pressed', flush=True)
+            return redirect(url_for('auth.searchWorkCount'))
+        elif request.form.get("recommendation"):
+            print('recommendation pressed', flush=True)
+            return redirect(url_for('auth.bookRecommendation'))
 
         # Search the books
         db = get_db()
@@ -168,7 +180,7 @@ def welcome():
 
 
 def mongo():
-   # myclient = pymongo.MongoClient("mongodb://localhost:27017/", connect=False)
+    #myclient = pymongo.MongoClient("mongodb://localhost:27017/", connect=False)
     #mydb = myclient["mydatabase"]
     #mycol = mydb["reviews"]
     #if request.method == 'GET':
@@ -178,7 +190,7 @@ def mongo():
     csvfile = open(os.path.join(os.path.dirname(__file__), 'review.csv'), 'r',  encoding='utf-8')
     reader = csv.reader( csvfile )
     header= [ "BookId", "Review1", "Review2", "Review3", "Review4", "Review5"]
-    #mycol.remove( { } )
+    mycol.remove( { } )
     
     i = 0
     n = 0
@@ -214,7 +226,6 @@ def mongo():
 def review():
     
     if request.method == "POST":
-        # delete the specified book
         db = get_db()
 
         bookID = request.form.get("text")
@@ -230,9 +241,8 @@ def review():
 
         if error is None:
             text = request.form.get("text")
-            #results = {BookId : "Nope", Review: "Bad"}
-            results = mydb.mycol.find({"BookId": text})
-            return render_template("auth/review.html", results=results, input_value=text, alert_message="No matches found")
+            results = mycol.find({"BookId": text}).limit(1)
+            return render_template("auth/review.html", results=results, input_value=text, alert_message="No reviews found")
 
         flash(error)
     
@@ -380,6 +390,136 @@ def insert():
         flash(error)
     
     return render_template("auth/insert.html")
+
+@bp.route("/searchAuthors", methods=["GET","POST"])
+def searchAuthors():
+    if request.method == "POST":
+        # delete the specified book
+        db = get_db()
+
+        author1 = request.form.get("author1")
+        author2 = request.form.get("author2")
+
+        error = None
+
+        if author1 == "" and author2 == "":
+              error = 'Must enter at least one author'
+
+        if error is None:
+
+            if author1 != "" and author2 == "":
+                results = db.execute(
+                    "SELECT workCount, BookID, Title, Author, AverageRating, descp, PageNum, PublicationYear FROM Book JOIN Author ON Book.Author=Author.Name WHERE Book.Author LIKE :author1", {"author1": f"%{author1}%"}).fetchall()
+            elif author1 == "" and author2 != "":
+                results = db.execute(
+                    "SELECT workCount, BookID, Title, Author, AverageRating, descp, PageNum, PublicationYear FROM Book JOIN Author ON Book.Author=Author.Name WHERE Book.Author LIKE :author2", {"author2": f"%{author2}%"}).fetchall()
+            else:
+                results = db.execute(
+                    "SELECT workCount, BookID, Title, Author, AverageRating, descp, PageNum, PublicationYear FROM Book JOIN Author ON Book.Author=Author.Name WHERE Book.Author LIKE :author1 UNION SELECT workCount, BookID, Title, Author, AverageRating, descp, PageNum, PublicationYear FROM Book JOIN Author ON Book.Author=Author.Name WHERE Book.Author LIKE :author2", {"author1": f"%{author1}%", "author2": f"%{author2}%"}).fetchall()
+
+            print('results: ', flush=True)
+            #print(results, flush=True)
+            return render_template("auth/searchAuthors.html", results=results, input_value1=author1, input_value2=author2, alert_message="No matches found!")
+
+        flash(error)
+    
+    return render_template("auth/searchAuthors.html")
+
+
+@bp.route("/searchWorkCount", methods=["GET","POST"])
+def searchWorkCount():
+    if request.method == "POST":
+        # delete the specified book
+        db = get_db()
+
+        userWorkCount = request.form.get("workCount")
+
+        error = None
+
+        if error is None:
+
+            results = db.execute(
+                "SELECT workCount, BookID, Title, Author, AverageRating, descp, PageNum, PublicationYear FROM Book JOIN Author ON Book.Author=Author.Name WHERE workCount = ? GROUP BY Author ORDER BY Author ASC", (userWorkCount,)).fetchall()
+
+            print('results: ', flush=True)
+            #print(results, flush=True)
+            return render_template("auth/searchWorkCount.html", results=results, input_value=userWorkCount, alert_message="No matches found for that work count amount!")
+
+        flash(error)
+    
+    return render_template("auth/searchWorkCount.html")
+
+
+@bp.route("/bookRecommendation", methods=["GET","POST"])
+def bookRecommendation():
+    if request.method == "POST":
+        # delete the specified book
+        db = get_db()
+
+        key1 = request.form.get("key1")
+        key2 = request.form.get("key2")
+        key3 = request.form.get("key3")
+
+        error = None
+
+        if error is None:
+
+            #query = mycol.find({'$and': [{'Review1': {'$regex': ".*{}.*".format(key1), '$options': 'i'} }, {'Review2': {'$regex': ".*{}.*".format(key2), '$options': 'i'} }]})
+                          
+            myquery = {"$and": [{"$or": [{"Review1": {'$regex': ".*{}.*".format(key1), '$options': 'i'}},{"Review2": {'$regex': ".*{}.*".format(key1), '$options': 'i'}},{"Review3": {'$regex': ".*{}.*".format(key1), '$options': 'i'}},{"Review4": {'$regex': ".*{}.*".format(key1), '$options': 'i'}},{"Review5": {'$regex': ".*{}.*".format(key1), '$options': 'i'}}]}, {"$or": [{"Review1": {'$regex': ".*{}.*".format(key2), '$options': 'i'}},{"Review2": {'$regex': ".*{}.*".format(key2), '$options': 'i'}},{"Review3": {'$regex': ".*{}.*".format(key2), '$options': 'i'}},{"Review4": {'$regex': ".*{}.*".format(key2), '$options': 'i'}},{"Review5": {'$regex': ".*{}.*".format(key2), '$options': 'i'}}]}, {"$or": [{"Review1": {'$regex': ".*{}.*".format(key3), '$options': 'i'}},{"Review2": {'$regex': ".*{}.*".format(key3), '$options': 'i'}},{"Review3": {'$regex': ".*{}.*".format(key3), '$options': 'i'}},{"Review4": {'$regex': ".*{}.*".format(key3), '$options': 'i'}},{"Review5": {'$regex': ".*{}.*".format(key3), '$options': 'i'}}]} ]}
+
+            print(key1)
+
+            bookIDs = []
+
+            mongoResults = mycol.find(myquery)
+
+            print("!!!!!!!!!!mongo query done")
+
+            n = mongoResults.count()/6
+
+            for x in mongoResults:
+                if n > 0:
+                    bookIDs.append(x['BookId'])
+                    n = n-1
+
+            print(len(bookIDs))
+            print(bookIDs)
+
+            bookRatings = []
+
+            for x in bookIDs:
+                results = db.execute('SELECT BookID,AverageRating FROM Book WHERE BookID = ?', (x,)).fetchone()
+                bookRatings.append([results['BookID'],results['AverageRating']])
+
+            bookRatings.sort(key=lambda x:x[1],reverse=True)
+
+            print(bookRatings)
+
+            top5 = bookRatings[0:5][0:5]
+
+            print(top5)
+
+            top5IDs = []
+
+            for x in top5:
+                top5IDs.append(x[0])
+
+            print(top5IDs)
+
+            titles = []
+
+            for x in top5IDs:
+                results = db.execute('SELECT Title FROM Book WHERE BookID = ?', (x,)).fetchone()
+                titles.append(results['Title'])
+
+            print('results: ', flush=True)
+            print(titles, flush=True)
+            return render_template("auth/bookRecommendation.html", results=titles, input_value1=key1, input_value2=key2, input_value3=key3, alert_message="No matches found!")
+
+        flash(error)
+    
+    return render_template("auth/bookRecommendation.html")
 
 
 #bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.

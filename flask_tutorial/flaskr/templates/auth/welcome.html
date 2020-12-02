@@ -28,12 +28,22 @@
 
       </ul>
 
-      <!-- <button type="submit" name="delete" value="delete">Delete</button>
-      <button type="submit" name="update" value="update">Update</button> -->
-
   {% elif alert_message %}
       <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
   {% endif %}
+
+  <h1>Filtered Searches</h1>
+
+  <form method="post">
+    <button type="submit" name="searchAuthors" value="searchAuthors">Search By Authors</button>
+    <button type="submit" name="searchWorkCount" value="searchWorkCount">Search By Work Count</button>
+  </form>
+
+  <h1>Book Recommendation</h1>
+
+  <form method="post">
+    <button type="submit" name="recommendation" value="recommendation">Get a Book Recommendation</button>
+  </form>
 
   </div>
 {% endblock %}

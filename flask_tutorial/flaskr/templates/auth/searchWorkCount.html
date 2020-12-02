@@ -1,0 +1,31 @@
+{% extends "base.html" %} 
+
+{% block header %}
+  <h1>{% block title %}Search By Author's Work Count{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <input class="form-control form-control-lg" type="text" name="workCount"
+            placeholder="Enter Work Count Amount" value="{{ input_value }}" required>
+        <button class="btn btn-outline-primary btn-lg">Search</button>
+    </form>
+
+    {% if results %}
+        <h2 class="text-center my-3">Results:</h2>
+        <ul class="list-group mx-w-900 mx-auto">
+
+            {% for result in results %}
+            <li class="list-group-item">
+
+                {{ result.workCount }}, {{ result.Author }}, {{ result.Title }}, {{ result.BookID }}, {{ result.AverageRating }}, {{ result.descp }}, {{ result.PageNum }}, {{ result.PublicationYear }}
+            </li>
+            {% endfor %}
+
+        </ul>
+
+    {% elif alert_message %}
+        <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
+    {% endif %}
+
+{% endblock %}

@@ -18,19 +18,29 @@
           {% for result in results %}
           <li class="list-group-item">
 
-              {{ result['BookId'] }}, 
-              {{ result['Review1'] }},
-              {{ result['Review2'] }},
-              {{ result['Review3'] }},
-              {{ result['Review4'] }},
-              {{ result['Review5'] }}
+            {{ result['BookId'] }}
+            <ul class="list-group mx-w-900 mx-auto">
+              <li class="list-group-item">
+                {{ result['Review1'] }}
+              </li>
+              <li class="list-group-item">
+                {{ result['Review2'] }}
+              </li>
+              <li class="list-group-item">
+                {{ result['Review3'] }}
+              </li>
+              <li class="list-group-item">
+                {{ result['Review4'] }}
+              </li>
+              <li class="list-group-item">
+                {{ result['Review5'] }}
+              </li>
+            </ul>
+
           </li>
           {% endfor %}
 
       </ul>
-
-      <!-- <button type="submit" name="delete" value="delete">Delete</button>
-      <button type="submit" name="update" value="update">Update</button> -->
 
   {% elif alert_message %}
       <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
