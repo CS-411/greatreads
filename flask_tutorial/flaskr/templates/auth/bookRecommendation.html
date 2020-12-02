@@ -1,0 +1,34 @@
+{% extends "base.html" %} 
+
+{% block header %}
+  <h1>{% block title %}Book Recommendation{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <input class="form-control form-control-lg" type="text" name="key1"
+            placeholder="Enter First Keyword" value="{{ input_value1 }}">
+        <input class="form-control form-control-lg" type="text" name="key2"
+            placeholder="Enter Second Keyword" value="{{ input_value2 }}">
+        <input class="form-control form-control-lg" type="text" name="key3"
+            placeholder="Enter Third Keyword" value="{{ input_value3 }}">
+        <button class="btn btn-outline-primary btn-lg">Book Recommendation</button>
+    </form>
+
+    {% if results %}
+        <h2 class="text-center my-3">Recommended Books:</h2>
+        <ul class="list-group mx-w-900 mx-auto">
+
+            {% for result in results %}
+            <li class="list-group-item">
+                {{ result }}
+            </li>
+            {% endfor %} 
+
+        </ul>
+
+    {% elif alert_message %}
+        <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
+    {% endif %}
+
+{% endblock %}

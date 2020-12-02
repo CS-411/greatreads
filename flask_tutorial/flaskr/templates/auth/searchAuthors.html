@@ -1,0 +1,33 @@
+{% extends "base.html" %} 
+
+{% block header %}
+  <h1>{% block title %}Search by Authors{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+    <form method="post">
+        <input class="form-control form-control-lg" type="text" name="author1"
+            placeholder="Enter First Author" value="{{ input_value1 }}">
+        <input class="form-control form-control-lg" type="text" name="author2"
+            placeholder="Enter Second Author" value="{{ input_value2 }}">
+        <button class="btn btn-outline-primary btn-lg">Search</button>
+    </form>
+
+    {% if results %}
+        <h2 class="text-center my-3">Results:</h2>
+        <ul class="list-group mx-w-900 mx-auto">
+
+            {% for result in results %}
+            <li class="list-group-item">
+
+                {{ result.Title }}, {{ result.Author }}, {{ result.workCount }}, {{ result.BookID }}, {{ result.AverageRating }}, {{ result.descp }}, {{ result.PageNum }}, {{ result.PublicationYear }}
+            </li>
+            {% endfor %}
+
+        </ul>
+
+    {% elif alert_message %}
+        <h4 class="alert alert-danger my-3 w-40 text-center mx-auto">{{ alert_message }}</h4>
+    {% endif %}
+
+{% endblock %}
