@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+  <h3>Search by book title to find corresponding book information such as BookID which can be used for other functions like Update, Delete, and Reviews</h3>
   <form method="post">
       <input class="form-control form-control-lg" type="text" name="text"
         placeholder="Enter book's title" value="{{ input_value }}">
@@ -12,7 +13,7 @@
       <button type="submit" name="delete" value="delete">Delete</button>
       <button type="submit" name="update" value="update">Update</button>
       <button type="submit" name="insert" value="insert">Insert</button>
-      <button type="submit" name="review" value="review">Review</button>
+      <button type="submit" name="review" value="review">Reviews</button>
   </form>
       
   {% if results %}
