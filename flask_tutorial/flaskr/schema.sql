@@ -1,19 +1,9 @@
 DROP TABLE IF EXISTS user;
-DROP TABLE IF EXISTS post;
 
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL
-);
-
-CREATE TABLE post (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  author_id INTEGER NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  title TEXT NOT NULL,
-  body TEXT NOT NULL,
-  FOREIGN KEY (author_id) REFERENCES user (id)
 );
 
 CREATE TABLE Book (
@@ -30,4 +20,19 @@ CREATE TABLE Author (
     Name TEXT PRIMARY KEY,
     workCount INTEGER
 );
+
+CREATE TABLE writtenBy (
+    BookID INT NOT NULL,
+    Name TEXT NOT NULL,
+    PRIMARY KEY(BookID, Name),
+    FOREIGN KEY(BookID) REFERENCES Book(BookID),
+    FOREIGN KEY(Name) REFERENCES Author(Name)
+)
+
+CREATE TABLE readBy (
+    BookID INT,
+    username VARCHAR(100)
+    FOREIGN KEY(BookID) REFERENCES Book(BookID), 
+    FOREIGN KEY (username) REFERENCES user(username)
+)
 

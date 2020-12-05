@@ -5,31 +5,16 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from flaskr.db import get_db
 import pymongo
-
 import numpy as np
 
-#from flask_pymongo import PyMongo
-#A view function is the code you write to respond to requests to your application
-#A Blueprint is a way to organize a group of related views and other code
-#The url_prefix will be prepended to all the URLs associated with the blueprint
+
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 myclient = pymongo.MongoClient("mongodb://localhost:27017/", connect=False)
 mydb = myclient["mydatabase"]
 mycol = mydb["reviews"]
-#global variable to track if delete button has been pressed
-#delete = 0
 
-#When the user visits the /auth/register URL, the register view will return HTML with a form for them to fill out.
-# When they submit the form, it will validate their input and either show the form again with an error message or create 
-#the new user and go to the login page.
-
-
-#@bp.route associates the URL /register with the register view function. 
-#When Flask receives a request to /auth/register, it will call the register view and use the return value as the response.
-#If the user submitted the form, request.method will be 'POST'. In this case, start validating the input.
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     
@@ -521,9 +506,6 @@ def bookRecommendation():
     
     return render_template("auth/bookRecommendation.html")
 
-
-#bp.before_app_request() registers a function that runs before the view function, no matter what URL is requested.
-#load_logged_in_user checks if a user id is stored in the session and gets that user’s data from the database, storing it on g.user, 
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
@@ -535,17 +517,11 @@ def load_logged_in_user():
             'SELECT * FROM user WHERE id = ?', (user_id,)
         ).fetchone()
 
-#To log out, you need to remove the user id from the session. Then load_logged_in_user won’t load a user on subsequent requests.
 @bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('index'))
 
-
-
-
-#This decorator returns a new view function that wraps 
-#the original view it’s applied to. The new function checks if a user is loaded and redirects to the login page otherwise.
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
